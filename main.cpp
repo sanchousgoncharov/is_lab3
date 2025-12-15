@@ -366,6 +366,27 @@ string simulated_annealing(int N) {
     return result;
 }
 
+void print_board(const string& positions) {
+    int N = positions.size();
+    for (int r = 0; r < N; ++r) {
+        for (int c = 0; c < N; ++c) {
+            if (positions[r] != '.' && (positions[r] - 'A') == c)
+                cout << " Ф ";
+            else
+                cout << " . ";
+        }
+        cout << "\n";
+    }
+}
+
+string format_duration(long long ms) {
+    if (ms < 1000) return to_string(ms) + " мс";
+    double sec = ms / 1000.0;
+    stringstream ss;
+    ss << fixed << setprecision(3) << sec << " сек";
+    return ss.str();
+}
+
 int main() {
     setlocale(LC_ALL, "Russian");
 
@@ -375,11 +396,58 @@ int main() {
 
     ChessState start(N);
 
-    auto bfs_res = ids(start);
+    if (N <= 12) {
 
-    for (auto item : bfs_res.first) {
-        cout << item << endl;
+        cout << "\nАлгоритм      | Время      | Узлы    | Решений\n";
+        cout << "-----------------------------------------------\n";
+
+        // ================= BFS =================
+        auto t1 = chrono::high_resolution_clock::now();
+        auto bfs_res = bfs(start);
+        auto t2 = chrono::high_resolution_clock::now();
+        auto dur = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
+        cout << left << setw(13) << "BFS"
+            << "| " << setw(10) << format_duration(dur)
+            << "| " << setw(7) << bfs_res.second.first
+            << "| " << bfs_res.second.second << "\n";
+
+        // ================= DFS =================
+        t1 = chrono::high_resolution_clock::now();
+        auto dfs_res = dfs(start);
+        t2 = chrono::high_resolution_clock::now();
+        dur = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
+        cout << left << setw(13) << "DFS"
+            << "| " << setw(10) << format_duration(dur)
+            << "| " << setw(7) << dfs_res.second.first
+            << "| " << dfs_res.second.second << "\n";
+
+        // ================= IDS =================
+        t1 = chrono::high_resolution_clock::now();
+        auto ids_res = ids(start);
+        t2 = chrono::high_resolution_clock::now();
+        dur = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
+        cout << left << setw(13) << "IDS"
+            << "| " << setw(10) << format_duration(dur)
+            << "| " << setw(7) << ids_res.second.first
+            << "| " << ids_res.second.second << "\n";
+
+        cout << "-----------------------------------------------\n";
     }
+    // ================= Genetic Algorithm =================
+    auto t1 = chrono::high_resolution_clock::now();
+    string ga_solution = genetic_algorithm(N);
+    auto t2 = chrono::high_resolution_clock::now();
+    auto dur = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
+    cout << "Genetic Algorithm (время: " << format_duration(dur) << ")\n";
+    print_board(ga_solution);
 
-    cout << bfs_res.second.second << endl;
+    // ================= Simulated Annealing =================
+    t1 = chrono::high_resolution_clock::now();
+    string sa_solution = simulated_annealing(N);
+    t2 = chrono::high_resolution_clock::now();
+    dur = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
+    cout << "Simulated Annealing (время: " << format_duration(dur) << ")\n";
+    print_board(sa_solution);
+
+    return 0;
 }
