@@ -89,7 +89,7 @@ struct hash<ChessState> {
     }
 };
 
-vector<string> bfs(const ChessState& start) {
+pair<vector<string>, pair<int, int>> bfs(const ChessState& start) {
     queue<ChessState> q;
     unordered_set<ChessState> visited;
     int nodes = 0, solutions = 0;
@@ -120,7 +120,21 @@ vector<string> bfs(const ChessState& start) {
         }
     }
 
+    return { res, {nodes, solutions} };
+}
 
-    format_res("BFS", start.size, nodes, solutions, t1, t2);
-    return res;
+int main() {
+    setlocale(LC_ALL, "Russian");
+
+    int N;
+    cout << "¬ведите размер доски N: ";
+    cin >> N;
+
+    ChessState start(N);
+
+    auto bfs_res = bfs(start);
+
+    for (auto item : bfs_res.first) {
+        cout << item << endl;
+    }
 }
